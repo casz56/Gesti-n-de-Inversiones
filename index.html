@@ -113,15 +113,7 @@
     <div class="flex flex-col gap-4"><!-- Logo and Title -->
      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
       <div class="rounded-lg shadow-md flex items-center justify-center flex-shrink-0 bg-white px-4 py-2" style="height: 60px; width: auto;">
-       <svg viewbox="0 0 240 80" style="height: 100%; width: auto;" xmlns="http://www.w3.org/2000/svg" preserveaspectratio="xMidYMid meet"><!-- Logotipo: Texto INFIHUILA unido y más grande --> <text x="10" y="55" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="900" letter-spacing="-2">
-         <tspan fill="#CCD400">
-          Infi
-         </tspan>
-         <tspan fill="#006C72" dx="-2">
-          Huila
-         </tspan>
-        </text>
-       </svg>
+       <img id="infihuila-logo" src="data:image/png;base64,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" alt="Logo INFIHUILA" style="max-height:60px; height:auto; width:auto; object-fit:contain;" />
       </div>
       <div class="flex-1 text-center sm:text-left">
        <h1 id="main-title" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-primary leading-tight">PROCEDIMIENTO DE GESTIÓN DE INVERSIONES PATRIMONIALES</h1>
@@ -1819,7 +1811,6 @@
         }
     </script>
  
- 
  <!-- NUEVO: Lógica para descargar el contenido como PDF -->
  <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -1855,7 +1846,6 @@
     });
   });
  </script>
-
 
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a2a3d28d67c21b7',t:'MTc2MzgzMzUwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
