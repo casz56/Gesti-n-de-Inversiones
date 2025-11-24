@@ -109,7 +109,7 @@
         }
     </script>
   <div class="min-h-full p-4 md:p-10"><!-- HEADER AND METADATA -->
-   <header class="bg-white p-4 md:p-6 rounded-xl shadow-2xl mb-8 border-b-8 border-medium">
+   <header id="page-header" class="bg-white p-4 md:p-6 rounded-xl shadow-2xl mb-8 border-b-8 border-medium">
     <div class="flex flex-col gap-4"><!-- Logo and Title -->
      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
       <div class="rounded-lg shadow-md flex items-center justify-center flex-shrink-0 bg-white px-4 py-2" style="height: 60px; width: auto;">
@@ -707,7 +707,7 @@
       <p class="text-sm sm:text-base text-gray-600 mt-1">Evalúa la viabilidad de tu inversión según la matriz riesgo-rentabilidad</p>
      </div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><!-- Input Section -->
+    <div id="pdf-page1-body" class="grid grid-cols-1 lg:grid-cols-2 gap-8"><!-- Input Section -->
      <div class="space-y-6">
       <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl">
        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
@@ -773,7 +773,7 @@
       </div>
      </div>
     </div><!-- Charts Section - Two Columns Below -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8"><!-- Interactive Pie Chart - Left -->
+    <div id="pdf-page2-body" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8"><!-- Interactive Pie Chart - Left -->
      <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200">
       <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" style="color: var(--color-secondary)"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /> <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
@@ -819,7 +819,7 @@
      </div>
     </div>
    </section><!-- FOOTER -->
-   <footer class="mt-10 bg-white p-4 rounded-xl shadow-lg text-center text-sm text-gray-600">
+   <footer id="page-footer" class="mt-10 bg-white p-4 rounded-xl shadow-lg text-center text-sm text-gray-600">
     <p style="font-family: 'Tw Cen MT', sans-serif;">© 2025 INFIHUILA - Instituto de Financiamiento, Promoción y Desarrollo del Huila</p>
     <p class="mt-1 text-xs" style="font-family: 'Tw Cen MT', sans-serif;">Documento controlado. Cualquier impresión es copia no controlada.</p>
    </footer>
@@ -1811,37 +1811,93 @@
         }
     </script>
  
- <!-- NUEVO: Lógica para descargar el contenido como PDF -->
+ <!-- NUEVO: Lógica para descargar el contenido como PDF en A4 vertical, 2 páginas, con membrete y márgenes ajustados -->
  <script>
   document.addEventListener('DOMContentLoaded', function () {
     const downloadBtn = document.getElementById('download-pdf-btn');
     if (!downloadBtn) return;
 
     downloadBtn.addEventListener('click', function () {
-      // Solo tomamos la sección del simulador y sus resultados
-      const element = document.getElementById('pdf-main-section');
+      const header = document.getElementById('page-header');
+      const bodyPage1 = document.getElementById('pdf-page1-body');
+      const bodyPage2 = document.getElementById('pdf-page2-body');
+      const footer = document.getElementById('page-footer');
 
-      if (!element) {
-        console.error('No se encontró la sección principal del simulador (pdf-main-section)');
+      if (!bodyPage1 || !bodyPage2) {
+        console.error('No se encontraron los bloques pdf-page1-body o pdf-page2-body');
         return;
       }
 
+      const pdfContainer = document.createElement('div');
+      pdfContainer.id = 'pdf-container-temp';
+      pdfContainer.style.backgroundColor = '#ffffff';
+      pdfContainer.style.margin = '0 auto';
+      pdfContainer.style.padding = '0';
+      pdfContainer.style.fontFamily =
+        "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+      function crearPagina(contenidoNodo, esUltima) {
+        const page = document.createElement('div');
+        page.className = 'pdf-page';
+        page.style.width = '200mm';           // un poco más estrecho que A4 para ganar alto útil
+        page.style.boxSizing = 'border-box';
+        page.style.padding = '8mm 10mm';      // márgenes internos más pequeños
+        page.style.display = 'flex';
+        page.style.flexDirection = 'column';
+        page.style.justifyContent = 'space-between';
+        page.style.pageBreakAfter = esUltima ? 'auto' : 'always';
+
+        if (header) {
+          page.appendChild(header.cloneNode(true));
+        }
+
+        const contenidoWrapper = document.createElement('div');
+        contenidoWrapper.style.flex = '1';
+        contenidoWrapper.appendChild(contenidoNodo.cloneNode(true));
+        page.appendChild(contenidoWrapper);
+
+        if (footer) {
+          page.appendChild(footer.cloneNode(true));
+        }
+
+        return page;
+      }
+
+      const pagina1 = crearPagina(bodyPage1, false);
+      const pagina2 = crearPagina(bodyPage2, true);
+
+      pdfContainer.appendChild(pagina1);
+      pdfContainer.appendChild(pagina2);
+
+      pdfContainer.style.position = 'relative';
+      pdfContainer.style.zIndex = '-1';
+      document.body.appendChild(pdfContainer);
+
       const opt = {
-        margin:       20, // puntos (~7 mm)
+        margin:       0,
         filename:     'procedimiento_inversiones_infihuila.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
-        jsPDF:        { unit: 'pt', format: 'a4', orientation: 'landscape' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak:    { mode: ['css', 'legacy'] }
       };
 
       if (typeof html2pdf !== 'undefined') {
-        html2pdf().set(opt).from(element).save().catch(function (err) {
-          console.error('Error al generar el PDF:', err);
-        });
+        html2pdf()
+          .set(opt)
+          .from(pdfContainer)
+          .save()
+          .then(function () {
+            document.body.removeChild(pdfContainer);
+          })
+          .catch(function (err) {
+            console.error('Error al generar el PDF:', err);
+            document.body.removeChild(pdfContainer);
+          });
       } else {
         console.error('html2pdf no está disponible. Verifica que la librería se haya cargado correctamente.');
         alert('Error: la librería de PDF no se cargó correctamente. Verifica que tengas acceso a jsDelivr en tu red.');
+        document.body.removeChild(pdfContainer);
       }
     });
   });
